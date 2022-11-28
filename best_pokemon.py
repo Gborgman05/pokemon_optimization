@@ -1,6 +1,7 @@
 from pokemon_type import *
 def main():
-    pass
+    possible_types = find_best_offensive()
+    
 
 
 
