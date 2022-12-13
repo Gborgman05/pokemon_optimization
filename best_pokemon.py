@@ -1,38 +1,44 @@
 from pokemon_type import *
 import pdb
 import pokebase as pb
+import json
+import requests
 def main():
     possible_types = find_best_offensive()
-    pokedex = pb.pokedex('national')  # Quick lookup.
     total_types = []
     for lst in possible_types:
         for ty in lst:
             if ty not in total_types:
                 total_types.append(ty)
     total_types = [typ.lower() for typ in total_types]
-    poss = get_poss(pokedex, total_types)
+    poss = get_poss(total_types)
 
     with open("possible_pokemon.json", "w") as f:
         f.write(str(poss))
 
 
 
-def get_poss(pokedex, possible_types):
-    poss_pokemon = {}
-    count = 0
-    for pokemon in pokedex.pokemon_entries:
-        count += 1
-        pokemon = pb.pokemon(pokemon.pokemon_species.name)
-        print(f"pokemon: {pokemon.name}, number {count}")
-        # pdb.set_trace()
-        f = open("possible_pokemon.json", "w+")
-        for ty in pokemon.types:
-            if ty.type.name in possible_types:
-                f.write 
-                poss_pokemon[pokemon.name] = [t.type.name for t in pokemon.types]
-                break
-    return poss_pokemon
-        
+def get_poss(possible_types):
+    with open("download.json") as f:
+        pokedex = json.loads(f.read())
+    
+    # for pokemon in pokedex["pokemon_entries"]:
+        # print(pokemon['pokemon_species']['name'])
+    poss = {}
+    for typ in possible_types:
+        resp = json.loads(requests.get(f"https://pokeapi.co/api/v2/type/{typ}").content)
+        for pokemon in resp["pokemon"]:
+            # pdb.set_trace()
+            pokemon = pokemon["pokemon"]
+            if pokemon["name"] in poss:
+                poss[pokemon["name"]].append(typ)
+            else:
+                poss[pokemon["name"]] = [typ]
+    return poss
+    
+            
+    
+
 
     
 
